@@ -1,26 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:owner_form_app/myhomepage.dart';
 import 'package:owner_form_app/myscaffold.dart';
+import 'dart:async';
+import 'package:owner_form_app/utils/database_helper.dart';
+import 'package:sqflite/sqflite.dart';
 
 List<String> list = <String>['Fresher', 'Experienced'];
 List controllerList = [];
 
 class AddEmployeeForm extends StatefulWidget {
   const AddEmployeeForm({super.key});
+
   @override
   AddEmployeeFormState createState() => AddEmployeeFormState();
 }
 
 class AddEmployeeFormState extends State<AddEmployeeForm> {
   final _formKey = GlobalKey<FormState>();
+
   TextEditingController nameController = TextEditingController();
   TextEditingController dobController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
   TextEditingController qualificationController = TextEditingController();
   TextEditingController genderController = TextEditingController();
   TextEditingController checkboxController = TextEditingController();
-  
+
   @override
   Widget build(BuildContext context){
 
@@ -33,7 +37,7 @@ class AddEmployeeFormState extends State<AddEmployeeForm> {
           actions: [
             TextButton(onPressed: () {
               Navigator.of(context).pop(true);
-              Navigator.push(context, MaterialPageRoute(builder: (context)=> const MyHomePage()));
+              // Navigator.push(context, MaterialPageRoute(builder: (context)=> MyHomePage()));
             },
                         child: const Text('Yes')),
             TextButton(onPressed: () => Navigator.of(context).pop(false),
@@ -113,6 +117,7 @@ class AddEmployeeFormState extends State<AddEmployeeForm> {
                         if (value == null || value.isEmpty){
                           return "Please enter numbers in the field";
                         }
+                        return null;
                         // if (value.length > 3 || double.parse(value) > 100){
                         //   return 'Age cannot be more than 100years';
                         // }
@@ -166,6 +171,7 @@ class AddEmployeeFormState extends State<AddEmployeeForm> {
                         if (value.length >= 11 || value.length <= 9){
                           return " ${10 - value.length} digit more to go..";
                         }
+                        return null;
                       },
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                     ),
@@ -180,10 +186,7 @@ class AddEmployeeFormState extends State<AddEmployeeForm> {
                       children: <Widget>[ElevatedButton(
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
-                            controllerList = [nameController.text, dobController.text, phoneController.text];
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar (content: Text('$controllerList')),
-                            );
+                            _insert(nameController.text, dobController.text, phoneController.text);
                           }
                         },
                         child: const Text('Submit', style: TextStyle(color: Colors.black)),
@@ -196,6 +199,17 @@ class AddEmployeeFormState extends State<AddEmployeeForm> {
       ),
       ),
     );
+  }
+
+  _insert(name, dob, phone) async {
+    Database db = await DatabaseHelper.instance.database;
+
+    Map<String, dynamic> row = {
+      DatabaseHelper.columnName : name,
+      DatabaseHelper.columnDOB : dob,
+      DatabaseHelper.columnPhone : phone,
+    };
+    int id = await db.insert(DatabaseHelper.table, row);
   }
 }
 
