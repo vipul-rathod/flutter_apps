@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:owner_form_app/models/employee.dart';
 import 'package:owner_form_app/myscaffold.dart';
+import 'package:owner_form_app/addemployeeform.dart';
 
 class ApplicationBuilder extends StatelessWidget {
   const ApplicationBuilder({super.key, required this.future});
@@ -19,62 +20,47 @@ class ApplicationBuilder extends StatelessWidget {
             child: CircularProgressIndicator(),
           );
         }
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: ListView.builder(
+        return Scaffold(
+          body: ListView.builder(
             itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
               final employee = snapshot.data![index];
               return buildEmployeeCard(employee, context);
-            }
-          
+            },
+            ),
+
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(builder: (context)=> const AddEmployeeForm()));
+            },
+            tooltip: 'Add Employee',
+            child: const Icon(Icons.add),
           ),
-        
-        );
-      },
-    ),
+
+          );
+        },
+      ),
     );
   }
 
   Widget buildEmployeeCard(Employee employee, BuildContext context){
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Row(
-          children: [
-            Container(
-              height: 40,
-              width: 40,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.grey[300],
+            color:  Colors.white,
+            elevation: 2,
+            child: ListTile(
+              leading: CircleAvatar(
+                backgroundColor: Colors.yellow,
+                child: Text('${employee.id}'),
               ),
-              alignment: Alignment.center,
-              child: Text(employee.id.toString(),
-                          style: const TextStyle(
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.bold,
-                          ),),
+              title: Text(employee.name.toString()),
+              subtitle: Text(employee.phone.toString()),
+              trailing: const Icon(Icons.delete, color: Colors.deepOrangeAccent),
+              onTap: () {
+                debugPrint(employee.name);
+              }
             ),
-            const SizedBox(width: 20),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    employee.name,
-                    style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.w500),
-                  ),
-                  const SizedBox(height: 4.0,),
-                  Text(employee.phone),
-                ],
-              ),
-            )
-
-
-          ],
-        ),
-      ),
-    );
-  }
+          );
+        }
+        
+        
 }
