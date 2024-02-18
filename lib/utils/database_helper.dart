@@ -14,8 +14,9 @@ class DatabaseHelper {
   static const columnName = 'name';
   static const columnDOB = 'dob';
   static const columnPhone = 'phone';
-  static const columnQualification = 'qualification';
+  static const columnExpLevel = 'expLevel';
   static const columnGender = 'gender';
+  static const columnConfirmation = 'confirmation';
   
   
   static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
@@ -34,8 +35,8 @@ class DatabaseHelper {
   }
 
   Future _onCreate(Database db, int version) async {
-    // var sqlQuery = "CREATE TABLE $table ($columnId INTEGER PRIMARY KEY, $columnName TEXT NOT NULL, $columnDOB TEXT NOT NULL, $columnPhone TEXT NOT NULL, $columnQualification TEXT, $columnGender TEXT, `dt` DATETIME DEFAULT CURRENT_TIMESTAMP)";
-    var sqlQuery = "CREATE TABLE $table ($columnId INTEGER PRIMARY KEY, $columnName TEXT NOT NULL, $columnPhone TEXT NOT NULL, `dt` DATETIME DEFAULT CURRENT_TIMESTAMP)";
+    var sqlQuery = "CREATE TABLE $table ($columnId INTEGER PRIMARY KEY, $columnName TEXT NOT NULL, $columnDOB TEXT NOT NULL, $columnPhone TEXT NOT NULL, $columnExpLevel TEXT, $columnGender TEXT, $columnConfirmation TEXT, `dt` DATETIME DEFAULT CURRENT_TIMESTAMP)";
+    // var sqlQuery = "CREATE TABLE $table ($columnId INTEGER PRIMARY KEY, $columnName TEXT NOT NULL, $columnPhone TEXT NOT NULL, `dt` DATETIME DEFAULT CURRENT_TIMESTAMP)";
     await db.execute(sqlQuery);
     // await db.execute("INSERT INTO $table ($columnName, $columnDOB, $columnPhone) values (?, ?, ?, ?, ?)", ['Vipul Rathod', '22/4/1989', '9004687768']);
   }

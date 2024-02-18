@@ -20,6 +20,9 @@ class AddEmployeeForm extends StatefulWidget {
 class AddEmployeeFormState extends State<AddEmployeeForm> {
   final _formKey = GlobalKey<FormState>();
   final DatabaseHelper instance = DatabaseHelper.instance;
+  var selectedGender = 'male';
+  var confirmationBool = false;
+  var expLevel = 'Fresher';
 
   TextEditingController nameController = TextEditingController();
   TextEditingController dobController = TextEditingController();
@@ -34,33 +37,7 @@ Future<List<Employee>> getEmployees() async{
 
   @override
   Widget build(BuildContext context){
-
-  Future<bool> exitConfirm() async {
-    return await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-          title: const Text("Exit"),
-          content: const Text('Are you sure to go back?'),
-          actions: [
-            TextButton(onPressed: () {
-              Navigator.of(context).pop(true);
-              // Navigator.push(context, MaterialPageRoute(builder: (context)=> MyHomePage()));
-            },
-                        child: const Text('Yes')),
-            TextButton(onPressed: () => Navigator.of(context).pop(false),
-                        child: const Text('No')),
-          ],
-        ),
-    );
-  }
-
-    return PopScope(
-      canPop: false,
-      onPopInvoked: (bool didPop) {
-        if (didPop){return;} exitConfirm();
-      },
-
-      child: MyScaffold(
+    return MyScaffold(
         title: 'Employee Form',
         body: Container(
           padding: const EdgeInsets.symmetric(vertical:16),
@@ -178,9 +155,21 @@ Future<List<Employee>> getEmployees() async{
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                     ),
                   ),
-                  const DropDownBoxExample(),
-                  const RadioBtn(),
-                  const CheckboxExample(),
+                  DropDownBoxExample(
+                    onChanged: (value){
+                      expLevel = value;
+                    },
+                  ),
+                  RadioBtn(
+                    onChanged: (value){
+                      selectedGender = value;
+                    }
+                  ),
+                  CheckboxExample(
+                    onChanged: (value){
+                      confirmationBool = value;
+                    },
+                  ),
 
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 0.0),
@@ -188,31 +177,30 @@ Future<List<Employee>> getEmployees() async{
                       children: <Widget>[ElevatedButton(
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
-                            _insert(nameController.text, dobController.text, phoneController.text);
+                            _insert(nameController.text, dobController.text, phoneController.text, expLevel, selectedGender, confirmationBool);
                             Navigator.of(context).push(MaterialPageRoute(builder: (context)=> ApplicationBuilder(future: getEmployees())));
                           }
                         },
                         child: const Text('Submit', style: TextStyle(color: Colors.black)),
                         ),]
                     ),),
-
                 ],),
           ),
         ),
       ),
-      ),
     );
   }
 
-  _insert(name, dob, phone) async {
+  _insert(name, dob, phone, expLevel, gender, confirmation) async {
     Database db = await DatabaseHelper.instance.database;
 
     Map<String, dynamic> row = {
       DatabaseHelper.columnName : name,
-      // DatabaseHelper.columnDOB : dob,
+      DatabaseHelper.columnDOB : dob,
       DatabaseHelper.columnPhone : phone,
-      // DatabaseHelper.columnQualification: qualification,
-      // DatabaseHelper.columnGender: gender,
+      DatabaseHelper.columnExpLevel: expLevel,
+      DatabaseHelper.columnGender: gender,
+      DatabaseHelper.columnConfirmation: confirmation,
     };
     int id = await db.insert(DatabaseHelper.table, row);
     return id;
@@ -221,7 +209,8 @@ Future<List<Employee>> getEmployees() async{
 
 enum Gender {male, female}
 class RadioBtn extends StatefulWidget {
-  const RadioBtn({super.key});
+  final Function(String)? onChanged;
+  const RadioBtn({super.key, required this.onChanged});
   @override
   RadioBtnState createState() => RadioBtnState();
 }
@@ -244,6 +233,7 @@ class RadioBtnState extends State<RadioBtn> {
                 value: Gender.male,
                 groupValue: _gender,
                 onChanged: (Gender? value) {
+                  widget.onChanged?.call(value!.name);
                   setState((){
                     _gender = value;
                   });
@@ -258,6 +248,7 @@ class RadioBtnState extends State<RadioBtn> {
                 value: Gender.female,
                 groupValue: _gender,
                 onChanged: (Gender? value){
+                  widget.onChanged?.call(value!.name);
                   setState(() {
                     _gender = value;
                   });
@@ -272,7 +263,8 @@ class RadioBtnState extends State<RadioBtn> {
 }
 
 class CheckboxExample extends StatefulWidget {
-  const CheckboxExample({super.key});
+  final Function(bool) onChanged;
+  const CheckboxExample({super.key, required this.onChanged});
   @override
   State<CheckboxExample> createState() => CheckboxExampleState();
 }
@@ -285,8 +277,9 @@ class CheckboxExampleState extends State<CheckboxExample>{
       title: const Text('Confirm the above details'),
       value: isChecked,
       onChanged: (bool? value){
+        widget.onChanged.call(value!);
         setState((){
-          isChecked = value!;
+          isChecked = value;
         });
       },
       controlAffinity: ListTileControlAffinity.leading,
@@ -300,7 +293,8 @@ class AlwaysDisabledFocusNode extends FocusNode {
 }
 
 class DropDownBoxExample extends StatefulWidget {
-  const DropDownBoxExample({super.key});
+  final Function(String) onChanged;
+  const DropDownBoxExample({super.key, required this.onChanged});
 
   @override
   State<DropDownBoxExample> createState() => _DropDownBoxExampleState();
@@ -321,8 +315,9 @@ class _DropDownBoxExampleState extends State<DropDownBoxExample> {
         color: Colors.black,
       ),
       onChanged: (String? value) {
+        widget.onChanged.call(value!);
         setState((){
-          dropdownvalue = value!;
+          dropdownvalue = value;
         });
       },
       items: list.map<DropdownMenuItem<String>>((String value) {
