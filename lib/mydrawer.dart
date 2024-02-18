@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:owner_form_app/addemployeeform.dart';
+import 'package:owner_form_app/employeelist1.dart';
 import 'package:owner_form_app/myhomepage.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
+import 'package:owner_form_app/models/employee.dart';
+import 'package:owner_form_app/utils/database_helper.dart';
 
 class MyDrawer extends StatefulWidget{
   const MyDrawer({super.key});
@@ -13,6 +16,7 @@ class MyDrawer extends StatefulWidget{
 
 class _MyDrawerState extends State<MyDrawer>{
   String _platformVersion = 'Unknown';
+  final DatabaseHelper instance = DatabaseHelper.instance;
 
   @override
   void initState() {
@@ -34,6 +38,10 @@ class _MyDrawerState extends State<MyDrawer>{
       _platformVersion = platformVersion;
     });
 
+  }
+
+  Future<List<Employee>> getEmployees() async {
+    return await instance.getApplication();
   }
 
   @override
@@ -68,11 +76,18 @@ class _MyDrawerState extends State<MyDrawer>{
             ),
 
             ListTile(
+              hoverColor: Colors.blue,
+              tileColor: Colors.amber,
+              leading: const Icon(Icons.emoji_people_rounded),
+              title: const Text('List Application'),
+              onTap: () {Navigator.of(context).push(MaterialPageRoute(builder: (context)=> ApplicationBuilder(future: getEmployees())));}
+            ),
+
+            ListTile(
               tileColor: Colors.amber,
               leading: const Icon(Icons.exit_to_app),
               title: Text('Exit App from $_platformVersion'),
               onTap: () {FlutterExitApp.exitApp(iosForceExit: true);}
-              
             ),
           ],
         ),

@@ -4,6 +4,8 @@ import 'package:owner_form_app/myscaffold.dart';
 import 'dart:async';
 import 'package:owner_form_app/utils/database_helper.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:owner_form_app/models/employee.dart';
+import 'package:owner_form_app/employeelist1.dart';
 
 List<String> list = <String>['Fresher', 'Experienced'];
 List controllerList = [];
@@ -17,6 +19,7 @@ class AddEmployeeForm extends StatefulWidget {
 
 class AddEmployeeFormState extends State<AddEmployeeForm> {
   final _formKey = GlobalKey<FormState>();
+  final DatabaseHelper instance = DatabaseHelper.instance;
 
   TextEditingController nameController = TextEditingController();
   TextEditingController dobController = TextEditingController();
@@ -24,6 +27,10 @@ class AddEmployeeFormState extends State<AddEmployeeForm> {
   TextEditingController qualificationController = TextEditingController();
   TextEditingController genderController = TextEditingController();
   TextEditingController checkboxController = TextEditingController();
+
+Future<List<Employee>> getEmployees() async{
+    return await instance.getApplication();
+  }
 
   @override
   Widget build(BuildContext context){
@@ -127,8 +134,8 @@ class AddEmployeeFormState extends State<AddEmployeeForm> {
                       },
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       onTap: () {
-                        DateTime _dateTime = DateTime.now();
-                        void _showDatePicker() {
+                        // DateTime dateTime = DateTime.now();
+                        void showDatePickerTool() {
                           showDatePicker(
                             context: context,
                             initialDate: DateTime.now(),
@@ -141,7 +148,7 @@ class AddEmployeeFormState extends State<AddEmployeeForm> {
                             }
                           );
                         }
-                        _showDatePicker();
+                        showDatePickerTool();
                       },
                     ),
                   ),
@@ -187,6 +194,7 @@ class AddEmployeeFormState extends State<AddEmployeeForm> {
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
                             _insert(nameController.text, dobController.text, phoneController.text);
+                            Navigator.of(context).push(MaterialPageRoute(builder: (context)=> ApplicationBuilder(future: getEmployees())));
                           }
                         },
                         child: const Text('Submit', style: TextStyle(color: Colors.black)),
@@ -208,8 +216,11 @@ class AddEmployeeFormState extends State<AddEmployeeForm> {
       DatabaseHelper.columnName : name,
       DatabaseHelper.columnDOB : dob,
       DatabaseHelper.columnPhone : phone,
+      // DatabaseHelper.columnQualification: qualification,
+      // DatabaseHelper.columnGender: gender,
     };
     int id = await db.insert(DatabaseHelper.table, row);
+    return id;
   }
 }
 
@@ -234,7 +245,7 @@ class RadioBtnState extends State<RadioBtn> {
             child: ListTile(
               contentPadding: const EdgeInsets.all(0.0),
               title: const Text('Male'),
-              leading: Radio(
+              leading: Radio<Gender>(
                 value: Gender.male,
                 groupValue: _gender,
                 onChanged: (Gender? value) {
@@ -248,11 +259,11 @@ class RadioBtnState extends State<RadioBtn> {
             child: ListTile(
               contentPadding: const EdgeInsets.all(0.0),
               title: const Text('Female'),
-              leading: Radio(
+              leading: Radio<Gender>(
                 value: Gender.female,
                 groupValue: _gender,
                 onChanged: (Gender? value){
-                  setState((){
+                  setState(() {
                     _gender = value;
                   });
                 },
@@ -296,15 +307,12 @@ class AlwaysDisabledFocusNode extends FocusNode {
 class DropDownBoxExample extends StatefulWidget {
   const DropDownBoxExample({super.key});
 
-
   @override
   State<DropDownBoxExample> createState() => _DropDownBoxExampleState();
 }
 
 class _DropDownBoxExampleState extends State<DropDownBoxExample> {
   String dropdownvalue = list.first;
-
-  
 
   @override
   Widget build(BuildContext context){
