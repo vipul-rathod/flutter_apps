@@ -61,6 +61,7 @@ Future<List<Employee>> getEmployees() async{
       },
 
       child: MyScaffold(
+        title: 'Employee Form',
         body: Container(
           padding: const EdgeInsets.symmetric(vertical:16),
           color: const Color.fromARGB(255, 254, 252, 239),
@@ -125,12 +126,6 @@ Future<List<Employee>> getEmployees() async{
                           return "Please enter numbers in the field";
                         }
                         return null;
-                        // if (value.length > 3 || double.parse(value) > 100){
-                        //   return 'Age cannot be more than 100years';
-                        // }
-                        // if (double.parse(value) < 21){
-                        //   return 'Age should be above 21++';
-                        // }
                       },
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       onTap: () {
@@ -214,7 +209,7 @@ Future<List<Employee>> getEmployees() async{
 
     Map<String, dynamic> row = {
       DatabaseHelper.columnName : name,
-      DatabaseHelper.columnDOB : dob,
+      // DatabaseHelper.columnDOB : dob,
       DatabaseHelper.columnPhone : phone,
       // DatabaseHelper.columnQualification: qualification,
       // DatabaseHelper.columnGender: gender,

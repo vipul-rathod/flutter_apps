@@ -14,6 +14,7 @@ class MyHomeViewSmallState extends State<MyHomeViewSmall>{
   @override
   Widget build(BuildContext context){
     return MyScaffold(
+      title: 'Employee Register',
       body: Container(
         color: const Color.fromARGB(255, 254, 252, 239),
         child: IndexedStack(

@@ -10,6 +10,7 @@ class ApplicationBuilder extends StatelessWidget {
   @override
   Widget build(BuildContext context){
     return MyScaffold(
+      title: 'Employee List',
       body: FutureBuilder<List<Employee>>(
       future: future,
       builder: (context, snapshot) {
