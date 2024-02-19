@@ -24,11 +24,14 @@ class MyHomeViewSmallState extends State<MyHomeViewSmall>{
               padding: EdgeInsets.zero,
               child: Center(
                 child:TextButton(
-                style: ButtonStyle(backgroundColor: MaterialStateProperty.all<Color>(Colors.grey,),
-                                  foregroundColor: MaterialStateProperty.all<Color>(Colors.white)),
-                onPressed: () {Navigator.of(context).push(MaterialPageRoute(builder: (context)=> const AddEmployeeForm()));},
-                child: const Text('Application Form'),
-              ))),],
+                  style: ButtonStyle(backgroundColor: MaterialStateProperty.all<Color>(Colors.grey,),
+                                    foregroundColor: MaterialStateProperty.all<Color>(Colors.white)),
+                  onPressed: () {Navigator.of(context).push(MaterialPageRoute(builder: (context)=> const AddEmployeeForm()));},
+                  child: const Text('Application Form'),
+                )
+              ),
+            ),
+          ],
         ),
       ),
     );

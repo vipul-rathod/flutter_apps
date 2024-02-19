@@ -10,8 +10,8 @@ import 'package:owner_form_app/employeelist1.dart';
 import 'package:hive/hive.dart';
 
 List<String> list = <String>['Fresher', 'Experienced'];
-List controllerList = [];
 
+// Form creation to add employees to the app.
 class AddEmployeeForm extends StatefulWidget {
   const AddEmployeeForm({super.key});
 
@@ -21,20 +21,22 @@ class AddEmployeeForm extends StatefulWidget {
 
 class AddEmployeeFormState extends State<AddEmployeeForm> {
   final _formKey = GlobalKey<FormState>();
-  final DatabaseHelper instance = DatabaseHelper.instance;
+  // Define variables and assign default value for submitting to database
   var selectedGender = 'male';
   var confirmationBool = false;
   var expLevel = 'Fresher';
+// SQFlite database instance
+  final DatabaseHelper instance = DatabaseHelper.instance;
+// Hive Box constraint declaration
   Box<DataModel>? userBox;
 
+// TextEditingController to get and update the value of textfields
   TextEditingController nameController = TextEditingController();
   TextEditingController dobController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
-  TextEditingController qualificationController = TextEditingController();
-  TextEditingController genderController = TextEditingController();
-  TextEditingController checkboxController = TextEditingController();
 
-Future<List<Employee>> getEmployees() async{
+//Query data from SQFlite database
+  Future<List<Employee>> getEmployees() async{
     return await instance.getApplication();
   }
 
@@ -180,12 +182,14 @@ Future<List<Employee>> getEmployees() async{
                       children: <Widget>[ElevatedButton(
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
-                            // _insert(nameController.text, dobController.text, phoneController.text, expLevel, selectedGender, confirmationBool);
-                            // Navigator.of(context).push(MaterialPageRoute(builder: (context)=> ApplicationBuilder(future: getEmployees())));
+                            // SQFlite submit
+                            _insert(nameController.text, dobController.text, phoneController.text, expLevel, selectedGender, confirmationBool);
+                            Navigator.of(context).push(MaterialPageRoute(builder: (context)=> ApplicationBuilder(future: getEmployees())));
 
+                            // HIVE submit
                             _insertHive(nameController.text, dobController.text, phoneController.text, expLevel, selectedGender, confirmationBool);
                             Navigator.of(context).push(MaterialPageRoute(builder: (context)=> AppBuilder(future: _getDataHive())));
-                            // _getDataHive();
+
                           }
                         },
                         child: const Text('Submit', style: TextStyle(color: Colors.black)),
@@ -198,9 +202,9 @@ Future<List<Employee>> getEmployees() async{
     );
   }
 
+// Function to insert data to sqflite database.
   _insert(name, dob, phone, expLevel, gender, confirmation) async {
     Database db = await DatabaseHelper.instance.database;
-
     Map<String, dynamic> row = {
       DatabaseHelper.columnName : name,
       DatabaseHelper.columnDOB : dob,
@@ -213,25 +217,61 @@ Future<List<Employee>> getEmployees() async{
     return id;
   }
 
+// Function to insert data to hive database.
   _insertHive(name, dob, phone, expLevel, gender, confirmation) async {
     DataModel dataModel = DataModel(name: name, dob: dob, phone: phone, expLevel: expLevel, gender: gender, confirmation: confirmation);
     Box<DataModel> dbBox = Hive.box('employee_box');
-    dbBox..add(dataModel);
+    dbBox.add(dataModel);
   }
 
+// Future function to get data from Hive box
   Future<List<DataModel>> _getDataHive()async{
     Box<DataModel> userBox = Hive.box('employee_box');
     List<DataModel> items = userBox.values.toList();
     return items;
   }
-
-  // _getDataHive()async{
-  //   userBox = Hive.box('employee_box');
-  //   var items  = userBox!.values.toList().reversed.toList();
-  //   return items;
-  // }
 }
 
+// Dropdown creation to select Experience Level.
+class DropDownBoxExample extends StatefulWidget {
+  final Function(String) onChanged;
+  const DropDownBoxExample({super.key, required this.onChanged});
+
+  @override
+  State<DropDownBoxExample> createState() => _DropDownBoxExampleState();
+}
+
+class _DropDownBoxExampleState extends State<DropDownBoxExample> {
+  String dropdownvalue = list.first;
+
+  @override
+  Widget build(BuildContext context){
+    return DropdownButton<String>(
+      value: dropdownvalue,
+      icon: const Icon(Icons.arrow_downward),
+      elevation: 16,
+      style: const TextStyle(color: Colors.black),
+      underline: Container(
+        height: 2,
+        color: Colors.black,
+      ),
+      onChanged: (String? value) {
+        widget.onChanged.call(value!);
+        setState((){
+          dropdownvalue = value;
+        });
+      },
+      items: list.map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value, style: const TextStyle(fontSize: 20)),
+        );
+      }).toList(),
+    );
+  }
+}
+
+// Radio Button class creation to add buttons for Gender.
 enum Gender {male, female}
 class RadioBtn extends StatefulWidget {
   final Function(String)? onChanged;
@@ -287,6 +327,7 @@ class RadioBtnState extends State<RadioBtn> {
   }
 }
 
+// Checkbox class creation to add checkbox to the UI.
 class CheckboxExample extends StatefulWidget {
   final Function(bool) onChanged;
   const CheckboxExample({super.key, required this.onChanged});
@@ -312,45 +353,9 @@ class CheckboxExampleState extends State<CheckboxExample>{
   }
 }
 
+// Set focus of any fields to readonly.
 class AlwaysDisabledFocusNode extends FocusNode {
   @override
   bool get hasFocus => false;
 }
 
-class DropDownBoxExample extends StatefulWidget {
-  final Function(String) onChanged;
-  const DropDownBoxExample({super.key, required this.onChanged});
-
-  @override
-  State<DropDownBoxExample> createState() => _DropDownBoxExampleState();
-}
-
-class _DropDownBoxExampleState extends State<DropDownBoxExample> {
-  String dropdownvalue = list.first;
-
-  @override
-  Widget build(BuildContext context){
-    return DropdownButton<String>(
-      value: dropdownvalue,
-      icon: const Icon(Icons.arrow_downward),
-      elevation: 16,
-      style: const TextStyle(color: Colors.black),
-      underline: Container(
-        height: 2,
-        color: Colors.black,
-      ),
-      onChanged: (String? value) {
-        widget.onChanged.call(value!);
-        setState((){
-          dropdownvalue = value;
-        });
-      },
-      items: list.map<DropdownMenuItem<String>>((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(value, style: const TextStyle(fontSize: 20)),
-        );
-      }).toList(),
-    );
-  }
-}

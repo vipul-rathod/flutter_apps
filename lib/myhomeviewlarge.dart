@@ -15,33 +15,36 @@ class MyHomeViewLargeState extends State<MyHomeViewLarge> {
   @override
   Widget build(BuildContext context){
     return Container(
-        padding: EdgeInsets.zero,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            const Expanded(
-              flex: 2,
-              child: MyDrawer(),
+      padding: EdgeInsets.zero,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          const Expanded(
+            flex: 2,
+            child: MyDrawer(),
+          ),
+          Expanded(
+            flex: 3,
+            child: IndexedStack(
+              index: _index,
+              children: [
+                Padding(
+                  padding: EdgeInsets.zero,
+                  child: Center(
+                    child:TextButton(
+                    style: ButtonStyle(backgroundColor: MaterialStateProperty.all<Color>(Colors.grey,),
+                                      foregroundColor: MaterialStateProperty.all<Color>(Colors.white)),
+                    onPressed: () {Navigator.of(context).push(MaterialPageRoute(builder: (context)=> const AddEmployeeForm()));},
+                    child: const Text('Application Form'),
+                    )
+                  ),
+                ),
+              ],
             ),
-            Expanded(
-              flex: 3,
-              child: IndexedStack(
-                index: _index,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.zero,
-                    child: Center(
-                      child:TextButton(
-                      style: ButtonStyle(backgroundColor: MaterialStateProperty.all<Color>(Colors.grey,),
-                                        foregroundColor: MaterialStateProperty.all<Color>(Colors.white)),
-                      onPressed: () {Navigator.of(context).push(MaterialPageRoute(builder: (context)=> const AddEmployeeForm()));},
-                      child: const Text('Application Form'),
-                    ))),],
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
+      ),
     );
   }
 }
