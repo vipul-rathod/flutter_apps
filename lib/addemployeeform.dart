@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:owner_form_app/models/data_model.dart';
 import 'package:owner_form_app/myscaffold.dart';
 import 'dart:async';
 import 'package:owner_form_app/utils/database_helper.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:owner_form_app/models/employee.dart';
 import 'package:owner_form_app/employeelist1.dart';
+import 'package:hive/hive.dart';
 
 List<String> list = <String>['Fresher', 'Experienced'];
 List controllerList = [];
@@ -23,6 +25,7 @@ class AddEmployeeFormState extends State<AddEmployeeForm> {
   var selectedGender = 'male';
   var confirmationBool = false;
   var expLevel = 'Fresher';
+  Box<DataModel>? userBox;
 
   TextEditingController nameController = TextEditingController();
   TextEditingController dobController = TextEditingController();
@@ -177,8 +180,12 @@ Future<List<Employee>> getEmployees() async{
                       children: <Widget>[ElevatedButton(
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
-                            _insert(nameController.text, dobController.text, phoneController.text, expLevel, selectedGender, confirmationBool);
-                            Navigator.of(context).push(MaterialPageRoute(builder: (context)=> ApplicationBuilder(future: getEmployees())));
+                            // _insert(nameController.text, dobController.text, phoneController.text, expLevel, selectedGender, confirmationBool);
+                            // Navigator.of(context).push(MaterialPageRoute(builder: (context)=> ApplicationBuilder(future: getEmployees())));
+
+                            _insertHive(nameController.text, dobController.text, phoneController.text, expLevel, selectedGender, confirmationBool);
+                            Navigator.of(context).push(MaterialPageRoute(builder: (context)=> AppBuilder(future: _getDataHive())));
+                            // _getDataHive();
                           }
                         },
                         child: const Text('Submit', style: TextStyle(color: Colors.black)),
@@ -205,6 +212,24 @@ Future<List<Employee>> getEmployees() async{
     int id = await db.insert(DatabaseHelper.table, row);
     return id;
   }
+
+  _insertHive(name, dob, phone, expLevel, gender, confirmation) async {
+    DataModel dataModel = DataModel(name: name, dob: dob, phone: phone, expLevel: expLevel, gender: gender, confirmation: confirmation);
+    Box<DataModel> dbBox = Hive.box('employee_box');
+    dbBox..add(dataModel);
+  }
+
+  Future<List<DataModel>> _getDataHive()async{
+    Box<DataModel> userBox = Hive.box('employee_box');
+    List<DataModel> items = userBox.values.toList();
+    return items;
+  }
+
+  // _getDataHive()async{
+  //   userBox = Hive.box('employee_box');
+  //   var items  = userBox!.values.toList().reversed.toList();
+  //   return items;
+  // }
 }
 
 enum Gender {male, female}

@@ -6,6 +6,8 @@ import 'package:owner_form_app/myhomepage.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:owner_form_app/models/employee.dart';
 import 'package:owner_form_app/utils/database_helper.dart';
+import 'package:hive/hive.dart';
+import 'package:owner_form_app/models/data_model.dart';
 
 class MyDrawer extends StatefulWidget{
   const MyDrawer({super.key});
@@ -44,6 +46,12 @@ class _MyDrawerState extends State<MyDrawer>{
     return await instance.getApplication();
   }
 
+  Future<List<DataModel>> _getDataHive()async{
+    Box<DataModel> userBox = Hive.box('employee_box');
+    List<DataModel> items = userBox.values.toList();
+    return items;
+  }
+
   @override
   Widget build(BuildContext context){
     return Drawer(
@@ -79,8 +87,16 @@ class _MyDrawerState extends State<MyDrawer>{
               hoverColor: Colors.blue,
               tileColor: Colors.amber,
               leading: const Icon(Icons.emoji_people_rounded),
-              title: const Text('List Application'),
+              title: const Text('List SQL Data'),
               onTap: () {Navigator.of(context).push(MaterialPageRoute(builder: (context)=> ApplicationBuilder(future: getEmployees())));}
+            ),
+
+            ListTile(
+              hoverColor: Colors.blue,
+              tileColor: Colors.amber,
+              leading: const Icon(Icons.emoji_people_rounded),
+              title: const Text('List Hive Data'),
+              onTap: () {Navigator.of(context).push(MaterialPageRoute(builder: (context)=> AppBuilder(future: _getDataHive())));}
             ),
 
             ListTile(
